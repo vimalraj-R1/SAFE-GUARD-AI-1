@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuardianShield Enterprise | Core Dashboard</title>
+    <!-- Tailwind CSS (v4) for layout styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Leaflet.js Mapping Engine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- FontAwesome UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Link to our external custom style sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#0b1329] text-slate-100 min-h-screen font-sans flex flex-col overflow-x-hidden antialiased">
+
+    <!-- SCREEN 1: SPLASH & LANGUAGE SELECTION OVERLAY -->
+    <div id="splashScreen" class="fixed inset-0 bg-[#0b1329] z-[9999] flex flex-col items-center justify-center p-6 transition-all duration-700 ease-in-out">
+        <div class="text-center max-w-md w-full space-y-8">
+            <div class="inline-block bg-red-600/10 border-2 border-red-500 p-6 rounded-3xl shadow-2xl shadow-red-500/20 mb-2">
+                <i class="fas fa-shield-alt text-6xl text-red-500 animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black tracking-wider text-white">GUARDIAN<span class="text-red-500">SHIELD</span></h1>
+                <p class="text-sm text-slate-400 mt-2">Next-Gen Autonomous Safety Workspace</p>
+            </div>
+
+            <!-- Language Selector Component -->
+            <div class="bg-slate-800/80 backdrop-blur-md border border-slate-700/60 p-6 rounded-2xl shadow-xl space-y-3">
+                <label class="block text-xs font-semibold uppercase tracking-widest text-slate-400">Select System Language</label>
+                <div class="grid grid-cols-3 gap-3 pt-2">
+                    <button onclick="setSystemLanguage('en')" class="bg-slate-700 hover:bg-indigo-600 font-medium text-xs py-3 px-2 rounded-xl transition-all duration-200 border border-slate-600 hover:border-indigo-400 btn-interactive">English</button>
+                    <button onclick="setSystemLanguage('ta')" class="bg-slate-700 hover:bg-indigo-600 font-medium text-xs py-3 px-2 rounded-xl transition-all duration-200 border border-slate-600 hover:border-indigo-400 btn-interactive">தமிழ்</button>
+                    <button onclick="setSystemLanguage('hi')" class="bg-slate-700 hover:bg-indigo-600 font-medium text-xs py-3 px-2 rounded-xl transition-all duration-200 border border-slate-600 hover:border-indigo-400 btn-interactive">हिन्दी</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: AUTHENTICATION (LOGIN) OVERLAY -->
+    <div id="authScreen" class="fixed inset-0 bg-[#0b1329]/95 backdrop-blur-xl z-[9998] flex flex-col items-center justify-center p-6 hidden transition-all duration-500">
+        <div class="bg-slate-800 border border-slate-700/80 w-full max-w-md rounded-2xl shadow-2xl p-8 space-y-6">
+            <div class="text-center">
+                <h2 id="lblAuthTitle" class="text-2xl font-bold text-white">Secure Identity Access</h2>
+                <p id="lblAuthSub" class="text-xs text-slate-400 mt-1">Authenticate credentials to initiate live gateway protocols</p>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Secure Email Address</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                        <input type="email" required placeholder="name@domain.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Access Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                        <input type="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+                    </div>
+                </div>
+                <button type="submit" id="btnAuthSubmit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-bold text-sm py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-900/30 text-white mt-2">Initialize Core Session</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: INTERACTIVE SYSTEM DASHBOARD -->
+    <header class="bg-slate-800/90 border-b border-slate-700/80 px-6 py-4 flex justify-between items-center Queens sticky top-0 z-50 backdrop-blur-md">
+        <div class="flex items-center space-x-3">
+            <div class="bg-red-600 p-2 rounded-lg shadow-md">
+                <i class="fas fa-shield-alt text-base text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-black tracking-wider text-white">GUARDIAN<span class="text-red-500">SHIELD</span></h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Node Vector: Active</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span id="lblLiveStatus" class="font-medium text-slate-300">GPS Network Secured</span>
+            </div>
+            <button onclick="logOut()" class="text-xs text-slate-400 hover:text-red-400 bg-slate-700/50 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all border border-slate-600 btn-interactive">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Application Grid -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1600px] w-full mx-auto">
+        <!-- Map Telemetry Layout Module (8/12 Columns) -->
+        <section class="lg:col-span-8 flex flex-col space-y-4 min-h-[400px] lg:min-h-0">
+            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700/80 shadow-xl flex flex-col flex-1 relative">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 id="lblMapHeader" class="font-bold text-sm tracking-wide text-slate-200">Safe Route Navigation & Live Telemetry Stream</h2>
+                    <div class="text-[11px] text-slate-400 bg-slate-900 px-2.5 py-1 rounded-md border border-slate-700">
+                        <i class="fas fa-route mr-1 text-emerald-400"></i> Route Variant: Secure
+                    </div>
+                </div>
+                <div class="flex-1 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-900 min-h-[350px]">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Matrices & AI Chat Node Modules (4/12 Columns) -->
+        <section class="lg:col-span-4 flex flex-col space-y-6">
+            <!-- Large Animated SOS Module -->
+            <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700/80 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-20 h-20 bg-red-600/10 rounded-full blur-xl"></div>
+                <h3 id="lblSosHeader" class="text-xs font-bold tracking-widest text-slate-400 uppercase">Emergency Dispatch Node</h3>
+                
+                <div class="relative my-6 flex items-center justify-center">
+                    <div id="sosRing" class="absolute inset-0 rounded-full bg-red-600/30 scale-100 hidden"></div>
+                    <button id="sosBtn" onclick="toggleSosTrigger()" class="w-32 h-32 bg-gradient-to-tr from-red-700 to-red-500 hover:from-red-600 hover:to-red-400 text-white rounded-full font-black text-xl shadow-2xl shadow-red-900/60 transition-all active:scale-95 duration-150 relative z-10 flex flex-col items-center justify-center border-4 border-slate-800 cursor-pointer">
+                        <span id="txtSosDisplay">SOS</span>
+                        <span id="txtSosSubDisplay" class="text-[10px] font-bold tracking-wider text-red-200 opacity-70 mt-1">TAP ACTIVE</span>
+                    </button>
+                </div>
+                <p id="lblSosDesc" class="text-xs text-slate-400 leading-relaxed max-w-xs">
+                    Activating initiates local environment encryption loops, locks localized data packets, and signals law enforcement nodes instantly.
+                </p>
+            </div>
+
+            <!-- AI Assistant Workspace Component -->
+            <div class="bg-slate-800 rounded-2xl border border-slate-700/80 shadow-xl flex flex-col flex-1 max-h-[400px] lg:max-h-none">
+                <div class="p-4 border-b border-slate-700/80 flex items-center justify-between bg-slate-900/30 rounded-t-2xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
+                            <i class="fas fa-robot text-indigo-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Aegis Core Copilot</h4>
+                            <p class="text-[9px] text-emerald-400 flex items-center font-medium mt-0.5">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 animate-pulse"></span> Natural Language Node Connected
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Box Screen Log -->
+                <div id="chatLog" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs custom-scrollbar min-h-[160px]">
+                    <div class="flex space-x-2 max-w-[85%]">
+                        <div id="lblAiGreeting" class="bg-slate-700/60 border border-slate-600/40 p-3 rounded-2xl rounded-tl-none text-slate-200 leading-relaxed">
+                            Hello! I am parsing alternative safe navigation lines dynamically. Ask me about public lighting matrix metrics, or notify guardians instantly.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Dispatch Input Bar -->
+                <div class="p-3 border-t border-slate-700/80 bg-slate-900/30 rounded-b-2xl">
+                    <form id="chatForm" onsubmit="handleAiChatSubmit(event)" class="flex space-x-2">
+                        <input id="chatInput" type="text" placeholder="Inquire spatial route security index..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors" autocomplete="off">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl text-xs px-3.5 transition-colors shadow-md cursor-pointer">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Leaflet Mapping Library Script File Dependencies -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Link to our external custom JavaScript engine -->
+    <script src="app.js"></script>
+</body>
+</html>
